@@ -1,18 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Clarkston Varsity Volleyball Live</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clarkston Varsity Live</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#0b0d12;color:#e8eaed}
+    .wrap{max-width:780px;margin:0 auto;padding:32px}
+    h1{font-size:clamp(24px,5vw,36px);margin:0 0 8px}
+    p.sub{opacity:.8;margin:0 0 24px}
+    .card{background:#111522;border:1px solid #1f2433;border-radius:16px;padding:24px;margin:16px 0}
+    .btn{display:inline-block;padding:14px 18px;border-radius:12px;text-decoration:none;background:#4f8cff;color:white;font-weight:600}
+    .btn:active{transform:scale(.98)}
+    ul{margin:12px 0 0 20px}
+    li{margin:6px 0}
+    .muted{opacity:.75;font-size:14px}
+    footer{opacity:.6;font-size:14px;margin-top:24px}
+    a{color:#9ec1ff}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    input[type="url"],input[type="text"]{flex:1;min-width:220px;padding:12px 10px;border-radius:10px;border:1px solid #2b3040;background:#0f1420;color:#e8eaed}
+  </style>
 </head>
 <body>
-  <h1>📺 Watch Clarkston's Latest Live Stream</h1>
-  <p><a href="https://www.facebook.com/share/v/19uq2G3Zck/" target="_blank">👉 Click here to watch live</a></p>
+  <div class="wrap">
+    <h1>Clarkston Varsity Live</h1>
+    <p class="sub">Your permanent link to the latest Facebook Live stream.</p>
 
-  <h2>📜 Past Streams</h2>
-  <ul>
-    <li><a href="https://www.facebook.com/share/v/1ANZstDnq4/">October 3 Stream</a></li>
-    <li><a href="https://www.facebook.com/share/v/1D8yMBC3ks/">September 20 Stream</a></li>
-    <li><a href="https://www.facebook.com/share/v/1D8yMBC3ks/">September 20 Stream</a></li>
-    
-  </ul>
+    <!-- LIVE -->
+    <div class="card">
+      <h2 style="margin-top:0;">Watch Live</h2>
+      <!-- EDIT THIS ONE URL WHEN YOU GO LIVE -->
+      <p id="liveLinkWrap">
+        <a id="liveBtn" class="btn" href="https://www.facebook.com/share/v/19uq2G3Zck/" target="_blank" rel="noopener">▶️ Watch the current stream</a>
+      </p>
+      <p class="muted">Tip: Edit this page in GitHub on your phone and replace the URL above when you go live.</p>
+    </div>
+
+    <!-- ARCHIVE -->
+    <div class="card">
+      <h3 style="margin-top:0;">Past Streams</h3>
+      <ul id="archive">
+        <!-- Add items newest → oldest. Example lines below: -->
+        <!-- <li>Oct 12, 2025 — <a href="https://www.facebook.com/VIDEO_LINK">Replay</a></li> -->
+        <!-- <li>Oct 05, 2025 — <a href="https://www.facebook.com/ANOTHER_LINK">Replay</a></li> -->
+        <li><a href="https://www.facebook.com/share/v/1ANZstDnq4/">October 3 Stream</a></li>
+        <li><a href="https://www.facebook.com/share/v/1D8yMBC3ks/">September 20 Stream</a></li>
+        <li><a href="https://www.facebook.com/share/v/1D8yMBC3ks/">September 20 Stream</a></li>
+      </ul>
+      <p class="muted">Add a new list item here after each game so fans can rewatch.</p>
+    </div>
+
+    <footer>
+      Link to share (always the same): <strong>https://bartztro.github.io/ClarkstonVarsityLive/</strong>
+    </footer>
+  </div>
 </body>
 </html>
