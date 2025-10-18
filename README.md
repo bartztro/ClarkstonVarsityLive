@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Clarkston Varsity Volleyball Live</title>
+  Clarkston Varsity Volleyball Live
 </head>
 <body>
   <h1>📺 Watch Clarkston's Latest Live Stream</h1>
