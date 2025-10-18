@@ -2,57 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Clarkston Varsity Live</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#0b0d12;color:#e8eaed}
-    .wrap{max-width:780px;margin:0 auto;padding:32px}
-    h1{font-size:clamp(24px,5vw,36px);margin:0 0 8px}
-    p.sub{opacity:.8;margin:0 0 24px}
-    .card{background:#111522;border:1px solid #1f2433;border-radius:16px;padding:24px;margin:16px 0}
-    .btn{display:inline-block;padding:14px 18px;border-radius:12px;text-decoration:none;background:#4f8cff;color:white;font-weight:600}
-    .btn:active{transform:scale(.98)}
-    ul{margin:12px 0 0 20px}
-    li{margin:6px 0}
-    .muted{opacity:.75;font-size:14px}
-    footer{opacity:.6;font-size:14px;margin-top:24px}
-    a{color:#9ec1ff}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
-    input[type="url"],input[type="text"]{flex:1;min-width:220px;padding:12px 10px;border-radius:10px;border:1px solid #2b3040;background:#0f1420;color:#e8eaed}
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 0; background:#0b0f19; color:#e8ebf3; }
+    .wrap { max-width: 900px; margin: 40px auto; padding: 0 16px; }
+    header { margin-bottom: 24px; }
+    h1 { margin: 0 0 8px; font-size: clamp(24px, 4vw, 36px); }
+    p.sub { margin: 0; opacity: .8; }
+    .card { background:#141b2d; border:1px solid #243048; border-radius:16px; padding:20px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .live { border:2px solid #2bd576; }
+    .live-badge { display:inline-block; font-size:12px; line-height:1; padding:6px 10px; border-radius:999px; background:#2bd576; color:#072414; font-weight:700; margin-bottom:10px; }
+    a.link { display:block; padding:12px 14px; border-radius:12px; background:#0f1626; border:1px solid #243048; color:#cfe5ff; text-decoration:none; }
+    a.link:hover { background:#0c1220; }
+    .title { font-weight:700; }
+    .url { font-size:12px; opacity:.8; word-break: break-all; }
+    .list { display:grid; gap:10px; }
+    .muted { opacity:.8; }
+    footer { margin-top: 28px; opacity:.6; font-size:12px; }
+    .err { background:#3b1020; color:#ffd8e1; border:1px solid #7f1d34; padding:12px; border-radius:10px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Clarkston Varsity Live</h1>
-    <p class="sub">Your permanent link to the latest Facebook Live stream.</p>
+    <header>
+      <h1>Clarkston Varsity Live</h1>
+      <p class="sub">This page always points to the latest live stream. Past streams are listed below.</p>
+    </header>
 
-    <!-- LIVE -->
-    <div class="card">
-      <h2 style="margin-top:0;">Watch Live</h2>
-      <!-- EDIT THIS ONE URL WHEN YOU GO LIVE -->
-      <p id="liveLinkWrap">
-        <a id="liveBtn" class="btn" href="http://www.facebook.com/10218780994733920/videos/1324226939447411" target="_blank" rel="noopener">▶️ Watch the current stream</a>
-      </p>
-      <p class="muted">Tip: Edit this page in GitHub on your phone and replace the URL above when you go live.</p>
-    </div>
+    <section id="liveCard" class="card live" aria-live="polite">
+      <div class="live-badge">LIVE</div>
+      <div id="liveContent">Loading live link…</div>
+    </section>
 
-    <!-- ARCHIVE -->
-    <div class="card">
-      <h3 style="margin-top:0;">Past Streams</h3>
-      <ul id="archive">
-        <!-- Add items newest → oldest. Example lines below: -->
-        <!-- <li>Oct 12, 2025 — <a href="https://www.facebook.com/VIDEO_LINK">Replay</a></li> -->
-        <!-- <li>Oct 05, 2025 — <a href="https://www.facebook.com/ANOTHER_LINK">Replay</a></li> -->
-        <li><a href="https://www.facebook.com/share/v/1ANZstDnq4/">Clarkston Senior Night</a></li>
-        <li><a href="https://www.facebook.com/share/v/1D8yMBC3ks/">Stoney Creek Part 2</a></li>
-        <li><a href="https://www.facebook.com/share/v/1D8yMBC3ks/">Stoney Creek Part 1</a></li>
-      </ul>
-      <p class="muted">Add a new list item here after each game so fans can rewatch.</p>
-    </div>
+    <h2 class="muted" style="margin-top:24px;">Past Streams</h2>
+    <section id="pastList" class="list" aria-live="polite" aria-busy="true">
+      <!-- past links injected here -->
+    </section>
 
     <footer>
-      Link to share (always the same): <strong>https://bartztro.github.io/ClarkstonVarsityLive/</strong>
+      <div id="status" class="muted">Fetching from Google Sheets…</div>
     </footer>
   </div>
+
+  <script>
+    // ------- CONFIGURE THESE -------
+    const SHEET_ID = "190Zl15BuSEB4a3Mu5KAKj5QhEceFrF59M6ad9sQWlSA"; // <- your sheet id
+    const GID = "0"; // <- tab/worksheet gid; change if your data is on another tab
+    // --------------------------------
+
+    // We’ll use CSV export (no API key). Ensure sheet is shared "Anyone with the link can view".
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+
+    // Tiny CSV parser (handles quoted commas/newlines)
+    function parseCSV(csv) {
+      const rows = [];
+      let i = 0, field = '', row = [], inQuotes = false;
+      while (i < csv.length) {
+        const c = csv[i];
+        if (inQuotes) {
+          if (c === '"') {
+            if (csv[i+1] === '"') { field += '"'; i++; } // escaped quote
+            else { inQuotes = false; }
+          } else {
+            field += c;
+          }
+        } else {
+          if (c === '"') inQuotes = true;
+          else if (c === ',') { row.push(field); field = ''; }
+          else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+          else if (c === '\r') { /* ignore CR */ }
+          else field += c;
+        }
+        i++;
+      }
+      // flush tail
+      row.push(field);
+      if (row.length > 1 || (row.length === 1 && row[0] !== '')) rows.push(row);
+      return rows;
+    }
+
+    function makeLinkCard(url, title, isLive=false) {
+      const a = document.createElement('a');
+      a.className = 'link';
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.innerHTML = `
+        <div class="title">${title || url}</div>
+        <div class="url">${url}</div>
+      `;
+      if (isLive) a.style.borderColor = '#2bd576';
+      return a;
+    }
+
+    async function loadSheet() {
+      const status = document.getElementById('status');
+      const liveContent = document.getElementById('liveContent');
+      const pastList = document.getElementById('pastList');
+
+      try {
+        const res = await fetch(CSV_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const csv = await res.text();
+        const rows = parseCSV(csv);
+
+        // If the sheet has a header row, detect and skip it when it looks like labels
+        // Expected columns: [URL, Title]
+        const cleaned = rows
+          .map(r => [ (r[0]||'').trim(), (r[1]||'').trim() ])
+          .filter(r => r[0] !== '' || r[1] !== '');
+
+        // Heuristic: drop header if first row "looks like" headers
+        const headerish = (cleaned[0]||[]).join(',').toLowerCase();
+        const hasHeader = headerish.includes('url') || headerish.includes('title') || headerish.includes('link');
+        const data = hasHeader ? cleaned.slice(1) : cleaned;
+
+        if (!data.length) {
+          liveContent.innerHTML = `<div class="err">No rows found in the sheet’s first two columns. Add rows like: Column A = URL, Column B = Title. Row 1 = live.</div>`;
+          status.textContent = 'No data.';
+          pastList.setAttribute('aria-busy', 'false');
+          return;
+        }
+
+        // First row = LIVE
+        const [liveUrl, liveTitle] = data[0];
+        liveContent.innerHTML = '';
+        liveContent.appendChild(makeLinkCard(liveUrl, liveTitle || 'Live Stream', true));
+
+        // Past rows
+        pastList.innerHTML = '';
+        for (let i = 1; i < data.length; i++) {
+          const [url, title] = data[i];
+          if (!url) continue;
+          pastList.appendChild(makeLinkCard(url, title || `Past Stream ${i}`));
+        }
+        pastList.setAttribute('aria-busy', 'false');
+        status.textContent = `Loaded ${data.length} row${data.length===1?'':'s'} from Google Sheets.`;
+      } catch (err) {
+        document.getElementById('liveCard').classList.remove('live');
+        document.getElementById('liveContent').innerHTML =
+          `<div class="err">Failed to load sheet. Check sharing and GID.<br><small>${String(err)}</small></div>`;
+        status.textContent = 'Error loading sheet.';
+        document.getElementById('pastList').setAttribute('aria-busy', 'false');
+      }
+    }
+
+    loadSheet();
+  </script>
 </body>
 </html>
